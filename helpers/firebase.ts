@@ -1,6 +1,8 @@
 import {initializeApp} from "firebase/app";
 import {collection, getDoc, getDocs, getFirestore} from "@firebase/firestore";
-import { getAuth } from "firebase/auth";
+import {getAuth} from "firebase/auth";
+import firebase from "firebase/compat";
+import Timestamp = firebase.firestore.Timestamp;
 
 const firebaseConfig = {
     apiKey: "AIzaSyCPl0TVYFNzfR7lchUr550St9XFua3pihg",
@@ -35,6 +37,7 @@ export interface Match {
     total: number,
     tc: string,
     diff: number,
+    date: number,
 }
 
 export async function getEngines(): Promise<Engine[]> {
@@ -52,6 +55,7 @@ export async function getMatches(): Promise<Match[]> {
         if (dt.engine1 && dt.engine2) {
             const e1 = (await getDoc(dt.engine1)).data();
             const e2 = (await getDoc(dt.engine2)).data();
+            console.log((dt.date as Timestamp).toDate());
             const match: Match = {
                 engine1: e1 as Engine,
                 engine2: e2 as Engine,
@@ -61,6 +65,7 @@ export async function getMatches(): Promise<Match[]> {
                 total: dt.total as number,
                 tc: dt.tc as string,
                 diff: dt.diff as number,
+                date: (dt.date as Timestamp).seconds,
             };
             matches.push(match);
         }

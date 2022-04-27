@@ -7,10 +7,10 @@ import {NotificationsProvider, showNotification} from '@mantine/notifications';
 
 import {auth, db, Engine, getEngines} from '../helpers/firebase';
 import {NextLink} from "@mantine/next";
-import {useHover} from "@mantine/hooks";
 import {RefObject, useRef, useState} from "react";
 import {onAuthStateChanged, signInWithEmailAndPassword, signOut} from "@firebase/auth";
 import {addDoc, collection} from "@firebase/firestore";
+import {Link} from "../helpers/components";
 
 interface Props {
     engines: Engine[],
@@ -23,16 +23,6 @@ export async function getServerSideProps() {
         },
     };
 }
-
-const Link = (props: { name: string }) => {
-    const {hovered, ref} = useHover();
-    return <Text ref={ref} size={"lg"} style={{
-        padding: "10px",
-        backgroundColor: hovered ? "whitesmoke" : "white",
-    }}>
-        {props.name}
-    </Text>;
-};
 
 const Home: NextPage<Props> = (props: Props) => {
     const rows = props.engines.sort((a, b) => b.rating - a.rating).map(
@@ -187,61 +177,64 @@ const Home: NextPage<Props> = (props: Props) => {
                                     }
                                 }>Log Out</Button>
                             </Container>
-                        ) : (
-                            <Container>
-                                <Text size={"lg"}>Admin Login</Text>
-
-                                <br/>
-
-                                <Input ref={email} placeholder={"Email"}/>
-
-                                <br/>
-
-                                <Input ref={pwd} placeholder={"Password"}/>
-
-                                <br/>
-
-                                <Button onClick={() => {
-                                    const emailValue = email.current!.value;
-                                    const pwdValue = pwd.current!.value;
-
-                                    if (!emailValue.includes("@") || !emailValue.includes(".")) {
-                                        showNotification({
-                                            color: 'red',
-                                            title: "Failure",
-                                            message: "Email must contain @ and ."
-                                        });
-                                        return;
-                                    }
-
-                                    if (pwdValue.length <= 4) {
-                                        showNotification({
-                                            color: 'red',
-                                            title: "Failure",
-                                            message: "Password too short"
-                                        });
-                                        return;
-                                    }
-
-                                    signInWithEmailAndPassword(auth, emailValue, pwdValue).then(r => {
-                                        showNotification({
-                                            color: 'green',
-                                            title: "Success",
-                                            message: `Loggged in as Admin. uid: ${r.user.uid}`
-                                        });
-                                    }).catch((error) => {
-                                        const errorCode = error.code;
-                                        const errorMessage = error.message;
-                                        showNotification({
-                                            color: 'red',
-                                            title: "Failure",
-                                            message: `${errorCode}: ${errorMessage}`
-                                        });
-                                    });
-                                }}>Login</Button>
-                            </Container>
-                        )
+                        ) : null
                     }
+
+                    <br/>
+                    <br/>
+
+                    <Container>
+                        <Text size={"lg"}>Admin Login</Text>
+
+                        <br/>
+
+                        <Input ref={email} placeholder={"Email"}/>
+
+                        <br/>
+
+                        <Input ref={pwd} placeholder={"Password"}/>
+
+                        <br/>
+
+                        <Button onClick={() => {
+                            const emailValue = email.current!.value;
+                            const pwdValue = pwd.current!.value;
+
+                            if (!emailValue.includes("@") || !emailValue.includes(".")) {
+                                showNotification({
+                                    color: 'red',
+                                    title: "Failure",
+                                    message: "Email must contain @ and ."
+                                });
+                                return;
+                            }
+
+                            if (pwdValue.length <= 4) {
+                                showNotification({
+                                    color: 'red',
+                                    title: "Failure",
+                                    message: "Password too short"
+                                });
+                                return;
+                            }
+
+                            signInWithEmailAndPassword(auth, emailValue, pwdValue).then(r => {
+                                showNotification({
+                                    color: 'green',
+                                    title: "Success",
+                                    message: `Loggged in as Admin. uid: ${r.user.uid}`
+                                });
+                            }).catch((error) => {
+                                const errorCode = error.code;
+                                const errorMessage = error.message;
+                                showNotification({
+                                    color: 'red',
+                                    title: "Failure",
+                                    message: `${errorCode}: ${errorMessage}`
+                                });
+                            });
+                        }}>Login</Button>
+                    </Container>
                 </main>
             </div>
         </NotificationsProvider>
